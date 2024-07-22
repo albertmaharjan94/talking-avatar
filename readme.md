@@ -1,10 +1,9 @@
 # BabylonJS ReadyPlayerMe Talk Animation Demo
 
 <br>
+// https://models.readyplayer.me/--READYPLAYERME--.glb?morphTargets=ARKit&lod=1&textureFormat=webp
+// https://models.readyplayer.me/669e26d98409082e90da6351.glb?morphTargets=ARKit&lod=1&textureFormat=webp
 
-<a href="https://www.viseni.com" target="_blank"><img src="https://www.viseni.com/viseni_logo_2.png" style="width: 200px; margin-bottom: 50px"></a>
-<br>
-<br>
 
 Babylon JS & ReadyPlayerMe -- <b>Demo Talking Animation</b>
 <br>
