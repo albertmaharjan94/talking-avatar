@@ -18,19 +18,15 @@
     <div id="loadingDiv">
         <p id="loadingText" class="font-weight-light">L O A D I N G</p>
         <span class="loader"></span>
-        <button id="customBT" onclick="hideLoadingView()" style="visibility: hidden;">START DEMO</button>
     </div>
 
     <!-- Client Logo -->
-    <div id="client-logo" onclick="startBTPressed();"></div>
+    <!-- <div id="client-logo" onclick="startBTPressed();"></div> -->
 
     <!-- Client Card -->    
-    <div id="client-card-container" style="visibility: hidden;">
-        <div id="client-card-img"></div>
+    <div id="client-card-container" style="visibility: show;">
         <div id="client-card-text">
-            <h4 id="client-card-title">Steven NoJobs</h4>
-            <p id="client-card-subtitle">CEO<br>Greater Cupertino Metropolitan Area</p>
-            <a id="client-card-link" href="https://github.com/crazyramirez/readyplayer-talk" target="_blank">GitHub Code</a>
+            <a id="client-card-link" onclick="talk()" target="_blank">Play Sound</a>
         </div>
     </div>
 

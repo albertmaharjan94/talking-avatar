@@ -1,5 +1,6 @@
 // GET Character from ReadyPlayerMe
 // https://models.readyplayer.me/--READYPLAYERME--.glb?morphTargets=ARKit&lod=1&textureFormat=webp
+// https://models.readyplayer.me/669e26d98409082e90da6351.glb?morphTargets=ARKit&lod=1&textureFormat=webp
 
 // On Document Loaded - Start Game //
 document.addEventListener("DOMContentLoaded", startGame);
@@ -12,7 +13,6 @@ var camera = new BABYLON.ArcRotateCamera("camera", BABYLON.Tools.ToRadians(-90),
 var dirLight = new BABYLON.DirectionalLight("dirLight", new BABYLON.Vector3(0,0,0), scene);
 var hemiLight = new BABYLON.HemisphericLight("hemiLight", new BABYLON.Vector3(0, 1, 0), scene);
 var shadowGenerator = new BABYLON.ShadowGenerator(1024, dirLight, true);
-var videoTexture = new BABYLON.VideoTexture("vidtex","./resources/videos/video.mp4", scene, true, true);
 
 var hdrTexture;
 var hdrRotation = 0;
@@ -49,37 +49,17 @@ function createScene(engine, canvas) {
     return scene;
 }
 
-// Start Game
-function startGame() {
-    // Set Canvas & Engine
-    var toRender = function () {
-        scene.render();
+function talk(AUDIO_URL){
+    if(AUDIO_URL === undefined){
+        AUDIO_URL = "./resources/sounds/audio.wav"
     }
-    engine.runRenderLoop(toRender);
-    engine.clear(new BABYLON.Color3(0, 0, 0), true, true);
-
-    // Setup Sounds 
-    music = new BABYLON.Sound("Music", "./resources/sounds/music.mp3", scene, null, {
-        loop: true
+    speech = new BABYLON.Sound("speech", AUDIO_URL, scene, function () {
     });
-
-
-    // SFX Using HTML Audio to prevent Silence switch on mobile devices
-    sfx1 = document.createElement("audio");
-    sfx1.preload = "auto";
-    sfx1.src = "./resources/sounds/sfx1.mp3";
-
-    speech = new BABYLON.Sound("speech", "./resources/sounds/speech.mp3", scene, function () {
-    });
-
     speech.onended = function () {
         console.log("End Speech");
         talking = false;
         setIdleAnimObservers();
         setTimeout(() => {
-            document.getElementById("client-logo").style.visibility = "visible";
-            document.getElementById("client-logo").classList.remove("fadeOut");
-            document.getElementById("client-logo").classList.add("fadeIn");
 
             if (timelineInterval)
                 clearInterval(timelineInterval);
@@ -106,12 +86,57 @@ function startGame() {
         }
     });
 
+    setTimeout(() => {
+        if(!talking){
+            speech.volume = 1;
+            talking = true;
+            speech.play();
+        }
+    }, 200);
+
+    // RegisterBeforeRender Morph Target Mouth
+    scene.registerBeforeRender(function () {
+        const workingArray = myAnalyser.getByteFrequencyData();
+        let jawValue = 0;
+
+        if (talking) {
+            // console.log("Frequency: " + workingArray[5] / 512);
+            jawValue = workingArray[5] / 512 * morphMultiplier_1;
+        }
+
+        scene.getMeshByName("Wolf3D_Head").morphTargetManager.getTarget(16).influence = jawValue * 2;
+        scene.getMeshByName("Wolf3D_Head").morphTargetManager.getTarget(34).influence = jawValue;
+        scene.getMeshByName("Wolf3D_Teeth").morphTargetManager.getTarget(34).influence = jawValue;
+    });
+}
+
+// Start Game
+function startGame() {
+    // Set Canvas & Engine
+    var toRender = function () {
+        scene.render();
+    }
+    engine.runRenderLoop(toRender);
+    engine.clear(new BABYLON.Color3(0, 0, 0), true, true);
+
+    // Setup Sounds 
+    music = new BABYLON.Sound("Music", "./resources/sounds/music.mp3", scene, null, {
+        loop: true
+    });
+
+
+    // SFX Using HTML Audio to prevent Silence switch on mobile devices
+    sfx1 = document.createElement("audio");
+    sfx1.preload = "auto";
+    sfx1.src = "./resources/sounds/sfx1.mp3";
+
+   
     // Glow Layer
-    // var gl = new BABYLON.GlowLayer("glow", scene, {
-    //     mainTextureFixedSize: 256,
-    //     blurKernelSize: 128
-    // });
-    // gl.intensity = 0.7;
+    var gl = new BABYLON.GlowLayer("glow", scene, {
+        mainTextureFixedSize: 256,
+        blurKernelSize: 128
+    });
+    gl.intensity = 0.7;
 
     // Create Camera
     createCamera();
@@ -133,14 +158,14 @@ function startGame() {
 
     // Setup Lighting & Import Models
     setLighting();
-    importBaseModel("base.glb");
+    // importBaseModel("base.glb");
     importAnimationsAndModel(modelName + ".glb");
 
     // Check Window Blur / Focus
-    setInterval(checkWindowFocused, 500);
 
     // scene.debugLayer.show({embedMode: true}).then(function () {
     // });
+
 }
 
 // Check Window Focus
@@ -165,7 +190,7 @@ function checkWindowFocused() {
 // Create ArcRotateCamera
 function createCamera() {
     camera.position.z = 10;
-    camera.setTarget(new BABYLON.Vector3(0, 1.25, 0));
+    camera.setTarget(new BABYLON.Vector3(0, 1.65, 0));
     camera.allowUpsideDown = false;
     camera.panningSensibility = 0;
     camera.lowerRadiusLimit = 1.5;
@@ -178,78 +203,10 @@ function createCamera() {
     camera.useBouncingBehavior = false;
     camera.alpha = 1.57;
     camera.beta = 1.42;
-    camera.radius = 15;
+    camera.radius = 1.0;
+    camera.minZ = 0.3; // Set to a smaller value to avoid near clipping
+    camera.maxZ = 1000; // Set to a larger value to avoid far clipping
 }
-
-async function importBaseModel(model) {
-    const result = await BABYLON.SceneLoader.ImportMeshAsync(null, "./resources/models/", model, scene);
-    const sphere1 = scene.getMeshByName("Sphere_1");
-    const sphere2 = scene.getMeshByName("Sphere_2");
-    const tvMaterial = scene.getMaterialByName("TV");
-    const cloudsAnim = scene.getAnimationGroupByName("clouds_anim");
-    const lightingTextureCache = {};
-
-    // Add ShadowCaster to Spheres
-    shadowGenerator.addShadowCaster(sphere1);
-    shadowGenerator.addShadowCaster(sphere2);
-
-    // Start Clouds Animations
-    cloudsAnim.speedRatio = 0.2;
-    cloudsAnim.play(true);
-
-    // Setup Video Texture
-    tvMaterial.albedoTexture = videoTexture;
-    tvMaterial.emissiveTexture = videoTexture;
-    tvMaterial.emissiveColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-    tvMaterial.roughness = 0.2;
-    videoTexture.video.pause();
-
-    result.meshes.forEach((mesh) => {
-        const meshName = mesh.name;
-        const { material } = mesh;
-
-        mesh.isPickable = false;
-
-        if (!meshName.includes("Sphere")) {
-            mesh.freezeWorldMatrix();
-            mesh.doNotSyncBoundingInfo = true;
-        }
-
-        if (meshName.includes("Base") || meshName.includes("Table")) {
-            const lightmapPath = "./resources/textures/" + mesh.parent.name + "_lighting.jpg";
-
-            let lightmap = lightingTextureCache[lightmapPath];
-            if (!lightmap) {
-                lightmap = new BABYLON.Texture(lightmapPath);
-                lightingTextureCache[lightmapPath] = lightmap;
-            }
-
-            material.lightmapTexture = lightmap;
-            material.useLightmapAsShadowmap = true;
-            material.lightmapTexture.uAng = Math.PI;
-            material.lightmapTexture.level = 1.6;
-            material.lightmapTexture.coordinatesIndex = 1;
-
-            if (meshName.includes("Base_primitive0")) {
-                material.albedoColor = new BABYLON.Color3(0.99, 0.99, 0.99);
-                material.metallic = 0.6;
-                material.roughness = 0.6;
-                material.specular = new BABYLON.Color3(0, 0, 0);
-                material.specularColor = new BABYLON.Color3(0, 0, 0);
-                mesh.receiveShadows = true;
-            }
-            if (meshName.includes("Base_primitive1")) {
-                material.roughness = 0.3;
-                mesh.receiveShadows = true;
-            }
-        }
-
-        if (meshName.includes("TV")) {
-            material.lightmapTexture = null;
-        }
-    });
-}
-
 
 // Setup Animations & Player
 var animationsGLB = [];
@@ -323,7 +280,7 @@ function importModel(model) {
             setReflections();
             setShadows();
             currentAnimation = scene.animationGroups[0];
-            showButtonHide();
+            initModel();
 
             leftEye = scene.getMeshByName("Wolf3D_Head").morphTargetManager.getTarget(50);
             rightEye = scene.getMeshByName("Wolf3D_Head").morphTargetManager.getTarget(51);
@@ -498,12 +455,9 @@ function startBTPressed() {
 
     playSounds();
 
-    videoTexture.video.play();
     timer = 0;
 
-    document.getElementById("client-logo").classList.add("fadeOut");
     setTimeout(() => {
-        document.getElementById("client-logo").style.visibility = "hidden";
         startTimeline();
     }, 400);
 }
@@ -539,81 +493,12 @@ function* animationBlending(fromAnim, fromAnimSpeedRatio, toAnim, toAnimSpeedRat
 let timelineInterval;
 function startTimeline() {
     clearInterval(timelineInterval);
-
-    // Step 1 - Camera Animation
-    const animationDuration = 250;
     camera.alpha = 1.57;
     camera.beta = 1.42;
-    BABYLON.Animation.CreateAndStartAnimation("cameraAnim", camera, "radius", 50, animationDuration, 15, 2.4, BABYLON.Animation.ANIMATIONLOOPMODE_RELATIVE, undefined, () => {
-        camera.useAutoRotationBehavior = true;
-        camera.autoRotationBehavior.idleRotationSpeed = 0.025;
-    });
-
-    // Clear Timer
-    let timer = 0;
 
     // Time Interval
     timelineInterval = setInterval(() => {
-        timer++;
-
-        // console.log("Timer: " + timer);
-        if (timer === 1) {
-            // Remove Idle Animation Observers
-            removeAnimObservers();
-
-            // Idle to Salute Anim
-            scene.onBeforeRenderObservable.runCoroutineAsync(animationBlending(currentAnimation, 1.0, salute, 1.0, false, 0.015, 0, salute.duration - animationOffset, 1));
-            const spheresAnim1 = scene.getAnimationGroupByName("move_anim");
-
-            // Spheres Animation
-            spheresAnim1.speedRatio = 0.5;
-            spheresAnim1.play(false);
-            spheresAnim1.onAnimationEndObservable.add(function () {
-                const spheresAnim2 = scene.getAnimationGroupByName("rotate_anim");
-                spheresAnim2.speedRatio = 0.35;
-                spheresAnim2.play(true);
-            });
-        }
-
-        // Start Speech after 3 seconds
-        if (timer === 3) {
-            // Start Speech
-            setTimeout(() => {
-                if (!talking) {
-                    speech.volume = 1;
-                    talking = true;
-                    speech.play();
-                }
-            }, 200);
-
-            // Show Client Card
-            setTimeout(() => {
-                const clientCardContainer = document.getElementById("client-card-container");
-                if (clientCardContainer.style.visibility === "hidden") {
-                    clientCardContainer.style.visibility = "visible";
-                    clientCardContainer.classList.add("fadeIn");
-                    clientCardContainer.classList.remove("fadeOut");
-                }
-            }, 800);
-
-            // RegisterBeforeRender Morph Target Mouth
-            scene.registerBeforeRender(function () {
-                const workingArray = myAnalyser.getByteFrequencyData();
-                let jawValue = 0;
-
-                if (talking) {
-                    // console.log("Frequency: " + workingArray[5] / 512);
-                    jawValue = workingArray[5] / 512 * morphMultiplier_1;
-                }
-
-                scene.getMeshByName("Wolf3D_Head").morphTargetManager.getTarget(16).influence = jawValue * 2;
-                scene.getMeshByName("Wolf3D_Head").morphTargetManager.getTarget(34).influence = jawValue;
-                scene.getMeshByName("Wolf3D_Teeth").morphTargetManager.getTarget(34).influence = jawValue;
-            });
-        }
-
-        // Check Talking Animations -- Start after 3 sec.
-        if (talking && speech.isPlaying && timer >= 3 && !currentAnimation.isPlaying) {
+        if (talking && speech.isPlaying && !currentAnimation.isPlaying) {
             let newTalkingAnim;
             do {
                 const random2 = Math.floor(Math.random() * 3) + 1;
@@ -638,7 +523,7 @@ function setLighting() {
     hdrSkyboxMaterial.backFaceCulling = false;
     hdrSkyboxMaterial.reflectionTexture = hdrTexture.clone();
     hdrSkyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-    hdrSkyboxMaterial.microSurface = 0.5;
+    hdrSkyboxMaterial.microSurface = 0.8;
     hdrSkyboxMaterial.disableLighting = true;
     hdrSkybox.material = hdrSkyboxMaterial;
     hdrSkybox.infiniteDistance = true;
@@ -671,10 +556,10 @@ function setReflections() {
 }
 
 // Show START DEMO BUTTON
-function showButtonHide() {
+function initModel() {
     setTimeout(() => {
-        document.getElementById("customBT").style.visibility = "visible";
-        document.getElementById("customBT").classList.add("fadeIn");
+        hideLoadingView();
+        startBTPressed();   
     }, 1200);
     setPostProcessing();
 
@@ -687,14 +572,9 @@ function showButtonHide() {
 function hideLoadingView() {
     // Unlock Audio Engine
     BABYLON.Engine.audioEngine.unlock();
-    document.getElementById("customBT").classList.add("fadeOut");
-    document.getElementById("customBT").classList.remove("fadeIn");
     document.getElementById("loadingDiv").classList.add("fadeOut");
     setTimeout(() => {
-        document.getElementById("loadingDiv").style.display = "none";
-        document.getElementById("customBT").style.visibility = "hidden";
-        document.getElementById("customBT").classList.remove("fadeIn");
-        document.getElementById("customBT").classList.remove("fadeOut");
+        document.getElementById("loadingDiv").style.display = "none"
     }, 400);
 }
 

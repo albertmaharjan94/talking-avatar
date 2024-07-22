@@ -1,8 +1,8 @@
 # BabylonJS ReadyPlayerMe Talk Animation Demo
 
 <br>
-// https://models.readyplayer.me/--READYPLAYERME--.glb?morphTargets=ARKit&lod=1&textureFormat=webp
-// https://models.readyplayer.me/669e26d98409082e90da6351.glb?morphTargets=ARKit&lod=1&textureFormat=webp
+* https://models.readyplayer.me/--READYPLAYERME--.glb?morphTargets=ARKit&lod=1&textureFormat=webp
+* https://models.readyplayer.me/669e26d98409082e90da6351.glb?morphTargets=ARKit&lod=1&textureFormat=webp
 
 
 Babylon JS & ReadyPlayerMe -- <b>Demo Talking Animation</b>
@@ -51,3 +51,6 @@ Main Code</b>
 Try the Live DEMO</b>
 
 https://viseni.com/readyplayer_talk/
+
+## Make sure to give permission at start
+![alt text](<Screenshot 2024-07-22 at 8.37.12 PM.png>)

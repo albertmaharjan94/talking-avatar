@@ -2,6 +2,7 @@
   "dependencies": {
     "babylonjs": "^6.11.1",
     "babylonjs-loaders": "^6.11.1",
+    "http-server": "^14.1.1",
     "pepjs": "^0.5.3"
   }
 }
