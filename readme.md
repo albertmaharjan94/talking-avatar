@@ -37,6 +37,8 @@ Setup NPM and Install BJS</b>
 - Download or Clone this Repository
 - Open a Terminal (Usign for example VSCode) 
 - RUN: <b>npm install</b> (To Install BJS Libraries from NPM)
+- RUN: npm install -g live-server
+- RUN: http-server -p 8000
 <br>
 
 <b><span>&#10003;</span>
