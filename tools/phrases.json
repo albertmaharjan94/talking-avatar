@@ -1,0 +1,10 @@
+[
+  { "id": "greet",     "text": "Hello. I'm Aria, your virtual assistant. What can I help you with today?" },
+  { "id": "listening", "text": "I'm listening. Take your time." },
+  { "id": "thinking",  "text": "Let me check that for you. One moment." },
+  { "id": "answer",    "text": "Here's what I found. Your next meeting is at two o'clock, and I've moved the design review to Thursday morning." },
+  { "id": "confirm",   "text": "Done. I've sent the summary to your inbox." },
+  { "id": "clarify",   "text": "I'm not sure I caught that. Could you say it another way?" },
+  { "id": "apologise", "text": "Sorry, I don't have access to that yet. Would you like me to open it in your browser instead?" },
+  { "id": "signoff",   "text": "That's everything for now. I'll be right here if you need me." }
+]

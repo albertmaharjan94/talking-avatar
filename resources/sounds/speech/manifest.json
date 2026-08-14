@@ -1,0 +1,50 @@
+[
+  {
+    "id": "greet",
+    "text": "Hello. I'm Aria, your virtual assistant. What can I help you with today?",
+    "file": "./resources/sounds/speech/greet.wav",
+    "seconds": 4.31
+  },
+  {
+    "id": "listening",
+    "text": "I'm listening. Take your time.",
+    "file": "./resources/sounds/speech/listening.wav",
+    "seconds": 1.86
+  },
+  {
+    "id": "thinking",
+    "text": "Let me check that for you. One moment.",
+    "file": "./resources/sounds/speech/thinking.wav",
+    "seconds": 2.33
+  },
+  {
+    "id": "answer",
+    "text": "Here's what I found. Your next meeting is at two o'clock, and I've moved the design review to Thursday morning.",
+    "file": "./resources/sounds/speech/answer.wav",
+    "seconds": 6.27
+  },
+  {
+    "id": "confirm",
+    "text": "Done. I've sent the summary to your inbox.",
+    "file": "./resources/sounds/speech/confirm.wav",
+    "seconds": 2.33
+  },
+  {
+    "id": "clarify",
+    "text": "I'm not sure I caught that. Could you say it another way?",
+    "file": "./resources/sounds/speech/clarify.wav",
+    "seconds": 2.92
+  },
+  {
+    "id": "apologise",
+    "text": "Sorry, I don't have access to that yet. Would you like me to open it in your browser instead?",
+    "file": "./resources/sounds/speech/apologise.wav",
+    "seconds": 5.12
+  },
+  {
+    "id": "signoff",
+    "text": "That's everything for now. I'll be right here if you need me.",
+    "file": "./resources/sounds/speech/signoff.wav",
+    "seconds": 3.16
+  }
+]

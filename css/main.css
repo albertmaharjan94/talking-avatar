@@ -178,74 +178,178 @@ html, body {
     opacity: 0.5;
 }
 
-#client-card-container {
-    z-index: 120;
+/* ---------------------------------------------------------------------------
+   STATUS BAR -- assistant name and current state
+   --------------------------------------------------------------------------- */
+
+#status-bar {
+    z-index: 130;
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 50px;
+    top: 24px;
     display: flex;
-    flex-direction: row;
-    align-content: center;
     align-items: center;
-    width: 500px;
-    gap: 20px;
-    padding: 10px 20px;
-    border-radius: 5px;
-    overflow: hidden;
-    touch-action: none;
+    gap: 10px;
+    padding: 8px 18px;
+    border-radius: 22px;
+    font-family: helveticaNeue;
+    background-color: #ffffff5c;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     pointer-events: none;
     user-select: none;
     -webkit-user-select: none;
+}
+
+#status-name {
+    font-size: 0.8em;
+    font-weight: 600;
+    letter-spacing: 0.22rem;
+    color: #333333;
+}
+
+#status-state {
+    font-size: 0.78em;
+    color: #33333399;
+}
+
+#status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #4caf50;
+    /* Slow pulse while waiting -- signals "ready", not "buffering". */
+    animation: statusPulse 2.4s ease-in-out infinite;
+}
+
+/* Speaking: the dot goes solid orange and stops pulsing. */
+#status-bar[data-state="speaking"] #status-dot {
+    background-color: #ff7b00;
+    animation: none;
+}
+
+@keyframes statusPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.35; transform: scale(0.8); }
+}
+
+/* ---------------------------------------------------------------------------
+   CONTROL PANELS
+   Both panels are empty in index.html -- main.js fills them from the tables.
+   --------------------------------------------------------------------------- */
+
+#animation-panel,
+#speech-panel {
+    z-index: 120;
+    position: absolute;
+    font-family: helveticaNeue;
+    padding: 14px 16px;
+    border-radius: 8px;
     background-color: #ffffff6e;
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-}
-
-#client-card-img {
-    background-image: url("../resources/images/avatar-icon.png");
-    background-repeat: no-repeat;
-    background-size: 95%;
-    background-position: center;
-    background-clip:padding-box;
-    width: 200px;
-    height: 150px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    border: none;
-    overflow: hidden;
-}
-
-#client-card-text {
-    z-index: 120;
-    display: flex;
-    flex-direction: column;
-    align-content:flex-start;
-    align-items: flex-start;
-    font-family: helveticaNeue;
-    width: 100%;
-}
-
-#client-card-title {
-    font-size: 1.6em;
-}
-
-#client-card-subtitle {
-    font-size: 1em;
-}
-
-#client-card-link {
-    text-decoration: none;
-    color: #333333;
-    pointer-events: all;
     touch-action: auto;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Animations: left column, scrolls if the list grows past the window. */
+#animation-panel {
+    left: 20px;
+    top: 20px;
+    width: 200px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+/* Phrases: right column, mirroring the animations. Deliberately NOT along the
+   bottom -- it would sit right over the mouth, which is the thing to watch. */
+#speech-panel {
+    right: 20px;
+    top: 20px;
+    width: 240px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+.panel-group {
+    margin-bottom: 14px;
+}
+
+.panel-group:last-child {
+    margin-bottom: 0;
+}
+
+#animation-panel h4,
+#speech-panel h4 {
+    font-size: 0.7em;
+    letter-spacing: 0.15rem;
+    text-transform: uppercase;
+    color: #33333399;
+    margin: 0 0 6px 0;
+}
+
+.anim-btn,
+.speech-btn {
+    font-family: helveticaNeue;
+    color: #333333;
+    background-color: #ffffff5c;
+    border: 1px solid #ffffff8a;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.1s ease;
+}
+
+.anim-btn {
+    display: block;
     width: 100%;
-    padding: 0px 0px;
-    text-align: center;
-    background-color: #ffffff27;
-    border-radius: 15px;
+    padding: 6px 10px;
+    margin-bottom: 4px;
+    text-align: left;
+    font-size: 0.9em;
+}
+
+.speech-btn {
+    display: block;
+    width: 100%;
+    padding: 7px 12px;
+    margin-bottom: 5px;
+    text-align: left;
+    font-size: 0.82em;
+    line-height: 1.3;
+}
+
+.anim-btn:hover,
+.speech-btn:hover {
+    background-color: #ffffffb0;
+}
+
+.anim-btn:active,
+.speech-btn:active {
+    transform: scale(0.97);
+}
+
+/* Whichever animation is currently playing. */
+.anim-btn.active {
+    background-color: #ff7b00cc;
+    border-color: #ff7b00;
+    color: white;
     font-weight: 600;
+}
+
+.hint {
+    font-size: 0.8em;
+    color: #333333;
+    margin: 0;
+    text-align: center;
+}
+
+.hint code {
+    color: #333333;
+    background-color: #ffffff8a;
+    padding: 1px 5px;
+    border-radius: 4px;
 }
 
 /* FadeIn -- FadeOut */
@@ -279,32 +383,35 @@ html, body {
 
 
 @media only screen and (max-width: 900px) {
-    #client-card-container {
-        width: 90%;
-        bottom: 30px;
-    }    
-
-    @keyframes fadeIn {
-        0% {
-            opacity: 0;
-            bottom: -30px;
-        }
-        100% {
-            opacity: 1;
-            bottom: 30px;
-        }
-    }
-    
     #client-logo {
         width: 75vw;
         height: 100px;
     }
 
-    #client-card-title {
-        font-size: 1.25em;
+    /* Narrow screens: shrink the animation column, cap the phrase list height. */
+    #animation-panel {
+        left: 10px;
+        top: 10px;
+        width: 130px;
+        padding: 10px;
+        max-height: 55vh;
     }
-    
-    #client-card-subtitle {
-        font-size: 0.8em;
+
+    .anim-btn {
+        font-size: 0.78em;
+        padding: 5px 8px;
+    }
+
+    #speech-panel {
+        right: 10px;
+        top: 10px;
+        width: 150px;
+        padding: 10px;
+        max-height: 55vh;
+    }
+
+    .speech-btn {
+        font-size: 0.72em;
+        padding: 5px 8px;
     }
 }

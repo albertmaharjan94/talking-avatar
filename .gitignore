@@ -1,1 +1,5 @@
 node_modules/**
+
+# Piper voice model, ~61 MB. Re-downloaded automatically by
+# tools/generate_speech.py on first run.
+tools/voices/**
