@@ -67,11 +67,27 @@ painted into canvases, which is why it loads instantly.
   exactly what a shadow map at this scale smears away, and without it a figure
   reads as hovering.
 
-**The horizon is the fiddly bit.** The sphere's equator is where floor meets
-backdrop, so the gradient there has to match the floor's distant colour exactly
-or you get a hard line straight across the frame. The glow sits higher up, at
-about `v = 0.42`, where it lands behind her head and separates her dark hair
-from the wall.
+**Both gradients are dithered.** A smooth ramp across dark colours has to be
+quantised to 8 bits per channel, and in the darks the steps between adjacent
+values are wide enough to see -- the gradient renders as a stack of flat bands
+with visible edges, which is most of what makes a background look cheap. A
+pixel or two of random noise scatters each boundary so the eye integrates it
+back into a smooth ramp. Same trick as dithering in audio; costs one pass over
+the canvas at load.
+
+**The horizon is the fiddly bit,** and three things govern it:
+
+1. **Only `v < 0.5` is ever visible.** The sphere's equator is where the floor
+   meets the backdrop; everything below is hidden behind the 120 m floor.
+2. **The glow must sit around `v = 0.455`.** The frame cuts off not far above
+   the horizon, so a glow placed higher is present but invisible.
+3. **The value at `v = 0.5` must match how the far floor actually renders** --
+   which is *not* the floor's flat colour, because the mirror out there is
+   reflecting this same backdrop back up. Land it too dark and a hard line
+   appears straight across the frame.
+
+The vignette matters here too: at weight 2.2 it crushed the top of the backdrop
+to near-black, which read as a dirty band rather than as a vignette. It is 1.1.
 
 ## Camera
 
@@ -84,6 +100,20 @@ Two shots, eased between:
 
 She pushes in to speak because at full-body distance her mouth is a handful of
 pixels and none of the lipsync is visible.
+
+The move takes `SHOT_SECONDS` (2.1 s) and is driven by **smootherstep**, which
+has zero velocity *and* zero acceleration at both ends. The first version eased
+exponentially -- move a fraction of the remaining distance each frame -- which
+is smooth at the end but starts at full speed, so every move began with a
+lurch. Measured velocity through the move, as a fraction of peak:
+
+| | first third | middle third | last third |
+| --- | --- | --- | --- |
+| exponential | high | falling | ~0 |
+| smootherstep | 0.03 | 0.08 | 0.02 |
+
+A move started mid-flight interpolates from wherever the camera actually is, so
+interrupting one does not jump (measured: 0.000).
 
 Any mouse input sets `autoFraming = false` and hands the camera to the user
 until the next shot change. Without that the dolly rewrites radius and beta
